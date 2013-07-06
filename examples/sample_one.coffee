@@ -1,0 +1,1 @@
+lazyloader = new window.ImageLazyLoad()
