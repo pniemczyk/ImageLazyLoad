@@ -13,6 +13,8 @@ class window.ImageLazyLoad
     afterImageLoaded: null
     afterImageLoadError: null
     defaultScrollTriggerDelay: 150
+    listIsSorted: true
+    loadingAtTopToEnd: true
 
   setOptions: (options) ->
     return unless options?
@@ -29,7 +31,6 @@ class window.ImageLazyLoad
     @axis = if @options.mode is "vertical" then "top" else "left"
     @container = if @options.container is 'body' then $(window) else @$container
     @containerSize = if @axis is 'top' then @container.height() else @container.width()
-
     @refreshElements(@containerSize)
     @startListenOnScroll()
 
@@ -76,12 +77,14 @@ class window.ImageLazyLoad
       that.refreshElements(pos + that.containerSize)
     if that.$elements.length is 0
       that.unbindEvents()
-
+  visitedViewPorts: []
   canLoading: (pos)->
     start = pos - @options.range
-    end = poz + @containerSize + @options.range
-
-    console.log []
+    end = pos + @containerSize + @options.range
+    $.each(@visitedViewPorts, (i, item) ->
+      if start =< item[0]
+    )
+    console.log
     true
 
   calculate: ->
