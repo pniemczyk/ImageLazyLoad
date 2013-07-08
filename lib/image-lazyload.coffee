@@ -1,20 +1,20 @@
 class window.ImageLazyLoad
-
-  version: '1.0.0'
+  version: '1.0.1'
   lastTopPosition: 0
 
   options:
-    range: 200
+    range: null
     elements: "img"
     errorImage: "about:blank"
     container: 'body'
     mode: "vertical"
     realSrcAttribute: "data-src"
-    fadeAtStart: true
+    useFade: true
     afterImageLoaded: null
     afterImageLoadError: null
     defaultScrollTriggerDelay: 150
     loadingAtTopToEnd: true
+    autoUpdateOnWindowResize: false
 
   setOptions: (options) ->
     return unless options?
@@ -28,12 +28,14 @@ class window.ImageLazyLoad
     @setOptions options
     @$container = $(@options.container)
     @$elements = @$container.find(@options.elements)
-    @fadeAll() if @options.fadeAtStart
+    @fadeAll() if @options.useFade
     @axis = if @options.mode is "vertical" then "top" else "left"
     @container = if @options.container is 'body' then $(window) else @$container
     @viewPortSize = if @axis is 'top' then @container.height() else @container.width()
+    @options.range = @viewPortSize if @options.range?
     @refreshLoader()
     @startListenOnScroll()
+    $(window).resize( => @refreshLoader()) if @options.autoUpdateOnWindowResize
 
   fadeAll: ->
     @$elements.each( (i, el ) -> $(el).css("opacity", 0))
