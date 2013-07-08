@@ -1,19 +1,19 @@
 class window.ImageLazyLoad
 
   version: '1.0.0'
+  lastTopPosition: 0
 
   options:
     range: 200
     elements: "img"
-    container: "body"
     errorImage: "about:blank"
+    container: 'body'
     mode: "vertical"
     realSrcAttribute: "data-src"
     fadeAtStart: true
     afterImageLoaded: null
     afterImageLoadError: null
     defaultScrollTriggerDelay: 150
-    listIsSorted: true
     loadingAtTopToEnd: true
 
   setOptions: (options) ->
@@ -28,11 +28,15 @@ class window.ImageLazyLoad
     @setOptions options
     @$container = $(@options.container)
     @$elements = @$container.find(@options.elements)
+    @fadeAll() if @options.fadeAtStart
     @axis = if @options.mode is "vertical" then "top" else "left"
     @container = if @options.container is 'body' then $(window) else @$container
-    @containerSize = if @axis is 'top' then @container.height() else @container.width()
-    @refreshElements(@containerSize)
+    @viewPortSize = if @axis is 'top' then @container.height() else @container.width()
+    @refreshLoader()
     @startListenOnScroll()
+
+  fadeAll: ->
+    @$elements.each( (i, el ) -> $(el).css("opacity", 0))
 
   startListenOnScroll: ->
     @timer
@@ -44,17 +48,27 @@ class window.ImageLazyLoad
       )
     )
 
-  refreshElements: (viewPortSize) ->
+  refreshLoader: ->
+    @onScroll(null, @)
+
+  refreshElements: (position) ->
     @$elements = @$elements.map( (i, el)=>
       $el = $(el)
-      $el.css("opacity", 0)  if @options.fadeAtStart
       elPos = $el.position()[@axis]
-      if elPos < viewPortSize + @options.range
+      loadImg = false
+
+      if @loadingAtTopToEnd
+        loadImg = elPos < position + @viewPortSize + @options.range
+      else
+        loadImg = position - @options.range < elPos < position + @viewPortSize + @options.range
+
+      if loadImg
         @loadImage($el)
         null
       else
        el
     )
+
   loadImage: ($el) ->
     img  = new Image()
     img.onload = =>
@@ -62,33 +76,28 @@ class window.ImageLazyLoad
         @options.afterImageLoaded($el, img.src)
       else
         $el.attr('src', img.src)
-        $el.css("opacity", 1) if @options.fadeAtStart
+        $el.css("opacity", 1) if @options.useFade
     img.onerror = =>
       if typeof @options.afterImageLoadError is 'function'
         @options.afterImageLoadError($el, @options.errorImage.src)
       else
         $el.attr('src', @options.errorImage.src)
-        $el.css("opacity", 1) if @options.fadeAtStart
+        $el.css("opacity", 1) if @options.useFade
     img.src = $el.attr(@options.realSrcAttribute)
 
-  onScroll: (e, that) ->
+  onScroll: (e, that)->
     pos = if that.axis is 'top' then that.container.scrollTop() else that.container.scrollLeft()
     if that.canLoading(pos)
-      that.refreshElements(pos + that.containerSize)
-    if that.$elements.length is 0
-      that.unbindEvents()
-  visitedViewPorts: []
-  canLoading: (pos)->
-    start = pos - @options.range
-    end = pos + @containerSize + @options.range
-    $.each(@visitedViewPorts, (i, item) ->
-      if start =< item[0]
-    )
-    console.log
-    true
+      that.refreshElements(pos)
+      that.unbindEvents() if that.$elements.length is 0
 
-  calculate: ->
+  canLoading: (pos)->
+    return true unless @loadingAtTopToEnd
+    if pos > @lastTopPosition
+      @lastTopPosition = pos
+      true
+    else
+      false
 
   unbindEvents: ->
-    console.log 'unbind'
     @container.off('.ImageLazyLoad')
