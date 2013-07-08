@@ -2,6 +2,8 @@
 (function() {
   var lazyloader;
 
-  lazyloader = new window.ImageLazyLoad();
+  lazyloader = new window.ImageLazyLoad({
+    loadingAtTopToEnd: false
+  });
 
 }).call(this);

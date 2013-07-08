@@ -23,6 +23,7 @@ class window.ImageLazyLoad
       src = @options.errorImage
       @options.errorImage = new Image()
       @options.errorImage.src = src
+      @options.container = 'body' if @options.container is window
 
   constructor: (options) ->
     @setOptions options
@@ -30,9 +31,9 @@ class window.ImageLazyLoad
     @$elements = @$container.find(@options.elements)
     @fadeAll() if @options.useFade
     @axis = if @options.mode is "vertical" then "top" else "left"
-    @container = if @options.container is 'body' then $(window) else @$container
-    @viewPortSize = if @axis is 'top' then @container.height() else @container.width()
-    @options.range = @viewPortSize if @options.range?
+    @viewPort = if @options.container is 'body' then $(window) else @$container
+    @viewPortSize = if @axis is 'top' then @viewPort.height() else @viewPort.width()
+    @options.range = @viewPortSize unless @options.range?
     @refreshLoader()
     @startListenOnScroll()
     $(window).resize( => @refreshLoader()) if @options.autoUpdateOnWindowResize
@@ -42,7 +43,7 @@ class window.ImageLazyLoad
 
   startListenOnScroll: ->
     @timer
-    @container.on('scroll.ImageLazyLoad', (e)=>
+    @viewPort.on('scroll.ImageLazyLoad', (e)=>
       clearTimeout(@timer)
       @timer = setTimeout(
         => @onScroll(e, @)
@@ -50,8 +51,7 @@ class window.ImageLazyLoad
       )
     )
 
-  refreshLoader: ->
-    @onScroll(null, @)
+  refreshLoader: -> @onScroll(null, @)
 
   refreshElements: (position) ->
     @$elements = @$elements.map( (i, el)=>
@@ -59,7 +59,7 @@ class window.ImageLazyLoad
       elPos = $el.position()[@axis]
       loadImg = false
 
-      if @loadingAtTopToEnd
+      if @options.loadingAtTopToEnd
         loadImg = elPos < position + @viewPortSize + @options.range
       else
         loadImg = position - @options.range < elPos < position + @viewPortSize + @options.range
@@ -88,7 +88,7 @@ class window.ImageLazyLoad
     img.src = $el.attr(@options.realSrcAttribute)
 
   onScroll: (e, that)->
-    pos = if that.axis is 'top' then that.container.scrollTop() else that.container.scrollLeft()
+    pos = if that.axis is 'top' then that.viewPort.scrollTop() else that.viewPort.scrollLeft()
     if that.canLoading(pos)
       that.refreshElements(pos)
       that.unbindEvents() if that.$elements.length is 0
@@ -101,5 +101,4 @@ class window.ImageLazyLoad
     else
       false
 
-  unbindEvents: ->
-    @container.off('.ImageLazyLoad')
+  unbindEvents: -> @viewPort.off('.ImageLazyLoad')

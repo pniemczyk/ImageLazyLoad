@@ -1,1 +1,1 @@
-lazyloader = new window.ImageLazyLoad()
+lazyloader = new window.ImageLazyLoad(loadingAtTopToEnd: false)
