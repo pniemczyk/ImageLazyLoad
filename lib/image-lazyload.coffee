@@ -41,6 +41,11 @@ class window.ImageLazyLoad
   fadeAll: ->
     @$elements.each( (i, el ) -> $(el).css("opacity", 0))
 
+  loadAll: =>
+    @$elements.each( (i, item) => @loadImage($(item)))
+    @$elements = []
+    @unbindEvents()    
+
   startListenOnScroll: ->
     @timer
     @viewPort.on('scroll.ImageLazyLoad', (e)=>
@@ -102,3 +107,4 @@ class window.ImageLazyLoad
       false
 
   unbindEvents: -> @viewPort.off('.ImageLazyLoad')
+  bindEvents:  -> @startListenOnScroll()
