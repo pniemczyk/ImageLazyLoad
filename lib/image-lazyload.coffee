@@ -94,7 +94,7 @@ class window.ImageLazyLoad
       that.unbindEvents() if that.$elements.length is 0
 
   canLoading: (pos)->
-    return true unless @loadingAtTopToEnd
+    return true unless @options.loadingAtTopToEnd
     if pos > @lastTopPosition
       @lastTopPosition = pos
       true
