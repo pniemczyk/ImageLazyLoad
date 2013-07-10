@@ -32,7 +32,7 @@ var lazyload = new window.ImageLazyLoad()
 
 or as Jquery plugin
 ``` js
-var $('body').imageLazyLoad()
+var lazyload = $('body').imageLazyLoad()
 ```
 
 ## Config Options
