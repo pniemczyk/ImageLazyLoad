@@ -2,78 +2,82 @@ ImageLazyLoad
 =============
 
 ## Usage
-Swipe only needs to follow a simple pattern. Here is an example:
+Here is an example:
 
 ``` html
-<div id='slider' class='swipe'>
-  <div class='swipe-wrap'>
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
-</div>
+<body>
+  <table>
+    <tbody>
+      <tr>
+        <td><img src="../media/img/blank.jpg" data-src="../media/img/001.jpg" /></td>
+        <td><img src="../media/img/blank.jpg" data-src="../media/img/002.jpg" /></td>
+        <td><img src="../media/img/blank.jpg" data-src="../media/img/003.jpg" /></td>
+      </tr>
+      ...
+      <tr>
+        <td><img src="../media/img/blank.jpg" data-src="../media/img/004.jpg" /></td>
+        <td><img src="../media/img/blank.jpg" data-src="../media/img/005.jpg" /></td>
+        <td><img src="../media/img/blank.jpg" data-src="../media/img/006.jpg" /></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
 ```
 
-Above is the initial required structure– a series of elements wrapped in two containers. Place any content you want within the items. The containing div will need to be passed to the Swipe function like so:
+Js with base configuration:
 
 ``` js
-window.mySwipe = Swipe(document.getElementById('slider'));
+var lazyload = new window.ImageLazyLoad()
 ```
 
-I always place this at the bottom of the page, externally, to verify the page is ready.
-
-Also Swipe needs just a few styles added to your stylesheet:
-
-``` css
-.swipe {
-  overflow: hidden;
-  visibility: hidden;
-  position: relative;
-}
-.swipe-wrap {
-  overflow: hidden;
-  position: relative;
-}
-.swipe-wrap > div {
-  float:left;
-  width:100%;
-  position: relative;
-}
+or as Jquery plugin
+``` js
+var $('body').imageLazyLoad()
 ```
 
 ## Config Options
 
-Swipe can take an optional second parameter– an object of key/value settings:
+- **container** String *(default: 'body')* - elements tag or id, not present in jQuery plugin
 
-- **startSlide** Integer *(default:0)* - index position Swipe should start at
+- **range** Integer *(default: is container size)* - additional range out of view port to load
 
-- **speed** Integer *(default:300)* - speed of prev and next transitions in milliseconds.
+- **elements** String *(default:'img')* - elements tag or class with images to lazyload
 
-- **auto** Integer - begin with auto slideshow (time in milliseconds between slides)
+- **errorImage** String or Image(object) *(default:'about:blank')* - image for not loaded images
 
-- **continuous** Boolean *(default:true)* - create an infinite feel with no endpoints
+- **mode** String *(default:vertical)* - vertical or horizontal image detection
 
-- **disableScroll** Boolean *(default:false)* - stop any touches on this container from scrolling the page
+- **realSrcAttribute** String *(default:data-src)* - html attribute holding true src of the image
 
-- **stopPropagation** Boolean *(default:false)* - stop event propagation
+- **useFade** Boolean *(default:true)* - hide images on load or not :D
 
-- **callback** Function - runs at slide change.
+- **afterImageLoaded** Function *(default:null)* - override default function displaying image after load
 
-- **transitionEnd** Function - runs at the end slide transition.
+- **afterImageLoadError** Function *(default:null)* - override default function displaying error image after load
+
+- **defaultScrollTriggerDelay** Integer *(default:150)* - delay to execute loading images after scrolling
+
+- **loadingAtTopToEnd** Boolean *(default:true)* - loading all images from start list to current position
+
+- **autoUpdateOnWindowResize** Boolean *(default:false)* - update loading images in view port after window resize
 
 ### Example
 
 ``` js
 
-window.mySwipe = new Swipe(document.getElementById('slider'), {
-  startSlide: 2,
-  speed: 400,
-  auto: 3000,
-  continuous: true,
-  disableScroll: false,
-  stopPropagation: false,
-  callback: function(index, elem) {},
-  transitionEnd: function(index, elem) {}
+window.lazyload = new window.ImageLazyLoad({
+  range: 300,
+  container, '#container',
+  elements: "div",
+  errorImage: "about:blank",
+  mode: "vertical",
+  realSrcAttribute: "data-src",
+  useFade: false,
+  afterImageLoaded: function($el, src){ $el.css('background-image', 'url(' + src + ')')); },
+  afterImageLoadError: function($el, src){ $el.css('background-image', 'url(' + src + ')')); },
+  defaultScrollTriggerDelay: 0,
+  loadingAtTopToEnd: false,
+  autoUpdateOnWindowResize: false
 });
 
 ```
@@ -87,21 +91,17 @@ visit <url>/tests
 
 ### To see simple build in browser:
 
-serve the root dir, `<url>/test/modular.html`
+serve the root dir, `<url>/test/test.html`
 
 ## ImageLazyLoad API
 
-Swipe exposes a few functions that can be useful for script control of your slider.
+`version` display version of plugin
 
-`prev()` slide to prev
+`unbindEvents()` stop listen on scroll
 
-`next()` slide to next
+`bindEvents()` start listen on scroll
 
-`getPos()` returns current slide index position
-
-`getNumSlides()` returns the total amount of slides
-
-`slide(index, duration)` slide to set index position (duration: speed of transition in milliseconds)
+`loadAll()` load all not loaded images
 
 ## Browser Support
 ?
