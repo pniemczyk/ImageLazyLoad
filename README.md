@@ -86,12 +86,12 @@ window.lazyload = new window.ImageLazyLoad({
 ```shell
 grunt build
 serve .
-visit <url>/tests
+visit <url>/test/test.html
 ```
 
 ### To see simple build in browser:
 
-serve the root dir, `<url>/test/test.html`
+serve the root dir, `<url>/samples/*.html`
 
 ## ImageLazyLoad API
 
