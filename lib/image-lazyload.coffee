@@ -58,10 +58,10 @@ class window.ImageLazyLoad
 
   refreshLoader: -> @onScroll(null, @)
 
-  refreshElements: (position) ->
+  refreshElements: (position, isWindow) ->
     @$elements = @$elements.map( (i, el)=>
       $el = $(el)
-      elPos = $el.position()[@axis]
+      elPos = if isWindow then $el.offset()[@axis] else $el.position()[@axis]
       loadImg = false
 
       if @options.loadingAtTopToEnd
@@ -94,7 +94,7 @@ class window.ImageLazyLoad
 
   onScroll: (e, that)->
     pos = if that.axis is 'top' then that.viewPort.scrollTop() else that.viewPort.scrollLeft()
-    if that.canLoading(pos)
+    if that.canLoading(pos, $.isWindow(that.viewPort[0]))
       that.refreshElements(pos)
       that.unbindEvents() if that.$elements.length is 0
 

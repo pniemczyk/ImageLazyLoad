@@ -55,10 +55,10 @@
       @$elements = []
       @unbindEvents()
 
-    refreshElements = (position, that) => 
+    refreshElements = (position, that, isWindow) => 
       that.$elements = that.$elements.map( (i, item) =>
         $item = $(item)
-        elPos = $item.position()[that.axis]
+        elPos = if isWindow then $item.offset()[that.axis] else $item.position()[that.axis]
         if isPositionToLoadImages(@options.loadingAtTopToEnd, elPos, position, @viewPortSize, @options.range)
           loadImage($item)
         else
@@ -86,7 +86,7 @@
       pos = getPosition(that.axis, that.viewPort)
       if !that.options.loadingAtTopToEnd || pos >= that.lastTopPosition
         that.lastTopPosition = pos
-        refreshElements(pos, that)
+        refreshElements(pos, that, $.isWindow(that.viewPort[0]))
         that.unbindEvents() if that.$elements.length is 0    
     
     @refreshLoader = => onScroll(null, @)
